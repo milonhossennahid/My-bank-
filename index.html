@@ -2,134 +2,144 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <title>🏦 My Bank Limited</title>
+  <title>🏛️My Banking Portal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <!-- Firebase CDN -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="firebase.js"></script>
 </head>
 <body>
   <nav class="navbar">
-    <span class="navbar-title">My Bank Limited</span>
-    <button class=",Admin-btn" onclick="showAdminLogin()" title="Admin Panel">💸</button>
+    <span class="navbar-title">🏦MyBank</span>
+    <button class="admin-btn" onclick="showAdminLogin()" title="bank-My">Mybank</button>
   </nav>
-  <div class="main-panel" id="mainPanel">
-    <!-- Login / Signup -->
-    <div id="authSection">
-      <div class="form-box">
-        <h2>ইউজার লগইন</h2>
-        <input id="loginUsername" type="text" placeholder="ইউজারনেম">
-        <input id="loginPassword" type="password" placeholder="পাসওয়ার্ড">
-        <button class="login-btn" onclick="login()">লগইন</button>
-        <div id="loginError" class="error"></div>
-        <div class="signup-link"><a href="#" onclick="showSignup()">নতুন একাউন্ট</a></div>
-      </div>
-      <div class="form-box" id="signupBox" style="display:none;">
-        <h2>নতুন একাউন্ট</h2>
-        <input id="signupName" type="text" placeholder="নাম">
-        <input id="signupMobile" type="text" placeholder="মোবাইল">
-        <input id="signupPassword" type="password" placeholder="পাসওয়ার্ড">
-        <button class="login-btn" onclick="signup()">রেজিস্টার</button>
-        <button class="login-btn" onclick="hideSignup()" style="background:#eee;color:#2367c3;">বাতিল</button>
-        <div id="signupError" class="error"></div>
-      </div>
+  <div class="main-panel">
+    <!-- User Login -->
+    <div class="form-box" id="loginBox">
+      <h2>ইউজার লগইন</h2>
+      <input id="loginUsername" type="text" placeholder="ইউজারনেম">
+      <input id="loginPassword" type="password" placeholder="পাসওয়ার্ড">
+      <button class="login-btn" onclick="login()">লগইন</button>
+      <div id="loginError" class="error"></div>
+    </div>
+    <!-- Create Account -->
+    <div class="form-box" id="createBox">
+      <h2>নতুন একাউন্ট</h2>
+      <input id="createName" type="text" placeholder="নাম">
+      <input id="createMobile" type="text" placeholder="মোবাইল">
+      <input id="createPassword" type="password" placeholder="পাসওয়ার্ড">
+      <button class="login-btn" onclick="createAccount()">রেজিস্টার</button>
+      <div id="createError" class="error"></div>
     </div>
   </div>
-
-  <!-- Admin Login Modal -->
-  <div id="adminLoginModal" class="modal-panel" style="display:none;">
-    <div class="modal-content">
-      <h3>Admin Panel Login</h3>
-      <input id="adminUsername" type="text" placeholder="Admin">
-      <input id="adminPassword" type="password" placeholder="Password">
-      <button class="login-btn" onclick="adminLogin()">Login</button>
-      <button class="login-btn" onclick="hideAdminLogin()" style="background:#eee;color:#2367c3;">Cancel</button>
+  <!-- Admin Login Popup -->
+  <div class="admin-modal" id="adminModal" style="display:none;">
+    <div class="admin-modal-content">
+      <h3>My-Bank Panel</h3>
+      <input id="adminUsername" type="text" placeholder="এডমিন ইউজার">
+      <input id="adminPassword" type="password" placeholder="এডমিন পাসওয়ার্ড">
+      <button class="login-btn" onclick="adminLogin()">লগইন</button>
+      <button class="login-btn" onclick="hideAdminModal()" style="background:#ccc;color:#333;">বাতিল</button>
       <div id="adminLoginError" class="error"></div>
     </div>
   </div>
-
   <!-- User Dashboard -->
   <div id="userPanel" style="display:none;">
     <nav class="navbar">
-      <span class="navbar-title">My Bank Limited</span>
-      <button class="logout-btn-small" onclick="userLogout()">Logout</button>
+      <span class="navbar-title">MyBank</span>
     </nav>
     <div class="user-profile-card">
       <div class="user-avatar-circle" id="userAvatar"></div>
       <div class="user-profile-details">
         <div class="up-name" id="upName"></div>
         <div class="up-mobile" id="upMobile"></div>
-        <div class="up-username" id="upUsername"></div>
-        <div class="up-status" id="upStatus"></div>
       </div>
-    </div>
-    <div class="account-info-box">
-      <div>Account No: <span id="upAccountNum"></span></div>
-      <div>Last Txn: <span id="upLastTxn"></span></div>
-      <div>Status: <span id="upAccountStatus"></span></div>
     </div>
     <div class="up-balance-box">
-      <span>Available Balance</span>
+      <span>Balance</span>
       <div id="upBalance" class="up-balance"></div>
-      <span class="pending-badge">Pending: <span id="upPendingBalance">0</span></span>
     </div>
-    <!-- Withdraw/Transfer -->
-    <div class="user-actions">
-      <button class="action-btn" onclick="showWithdrawModal()">Withdraw/Transfer</button>
-    </div>
-    <div class="withdraw-options" id="withdrawOptions" style="display:none;">
-      <button class="option-btn" onclick="showWithdrawForm('bank')">Bank</button>
-      <button class="option-btn" onclick="showWithdrawForm('bkash')">Bkash</button>
-      <button class="option-btn" onclick="showWithdrawForm('mobile')">Mobile</button>
-      <button class="option-btn" onclick="hideWithdrawOptions()">Cancel</button>
-    </div>
-    <!-- Withdraw Form Modal -->
-    <div id="withdrawFormModal" class="modal-panel" style="display:none;">
-      <div class="modal-content">
-        <h3 id="withdrawTypeTitle"></h3>
-        <input type="text" id="withdrawTo" placeholder="">
-        <input type="number" id="withdrawAmt" placeholder="Amount">
-        <button class="login-btn" onclick="submitWithdraw()">Send</button>
-        <button class="login-btn" onclick="hideWithdrawForm()" style="background:#eee;color:#2367c3;">Cancel</button>
-        <div id="withdrawError" class="error"></div>
+    <!-- Bank Card -->
+    <div class="real-card-container">
+      <img src="images/card-real.png" class="real-card-img" alt="Card" />
+      <div class="real-card-overlay">
+        <div class="real-card-number" id="cardNum"></div>
+        <div class="real-card-holder"><span id="cardHolder"></span></div>
+        <div class="real-card-expiry"><span id="cardExpiry"></span></div>
       </div>
     </div>
-    <!-- Transaction History -->
-    <div class="txn-box">
-      <h4>Transaction History</h4>
-      <div id="txnList"></div>
+    <!-- Actions: Withdraw, Bkash, Bank, Recharge -->
+    <div class="user-actions">
+      <button class="action-btn" onclick="showWithdrawModal()">Withdraw</button>
+      <button class="action-btn" onclick="showBkashModal()">বিকাশ</button>
+      <button class="action-btn" onclick="showBankModal()">ব্যাংক</button>
+      <button class="action-btn" onclick="showRechargeModal()">রিচার্জ</button>
     </div>
-    <!-- Support Contact -->
+    <!-- Support Option -->
     <div class="support-box">
       <span>Support: <a href="mailto:mybankofficial0@gmail.com">mybankofficial0@gmail.com</a></span>
     </div>
+    <!-- Logout Button -->
     <button class="logout-btn-small" onclick="userLogout()">Logout</button>
+    <!-- Modals -->
+    <div id="modalWithdraw" class="modal-panel" style="display:none;">
+      <div class="modal-content">
+        <h3>Withdraw</h3>
+        <input type="number" id="withdrawAmt" placeholder="Amount">
+        <button class="login-btn" onclick="withdrawMoney()">Withdraw</button>
+        <button class="login-btn" onclick="hideModal('modalWithdraw')" style="background:#ccc;color:#333;">Cancel</button>
+        <div id="withdrawError" class="error"></div>
+      </div>
+    </div>
+    <div id="modalBkash" class="modal-panel" style="display:none;">
+      <div class="modal-content">
+        <h3>বিকাশ</h3>
+        <input type="text" id="bkashNum" placeholder="বিকাশ নম্বর">
+        <input type="number" id="bkashAmt" placeholder="টাকা">
+        <button class="login-btn" onclick="bkashSend()">Send</button>
+        <button class="login-btn" onclick="hideModal('modalBkash')" style="background:#ccc;color:#333;">Cancel</button>
+        <div id="bkashError" class="error"></div>
+      </div>
+    </div>
+    <div id="modalBank" class="modal-panel" style="display:none;">
+      <div class="modal-content">
+        <h3>Bank Transfer</h3>
+        <input type="text" id="bankAcc" placeholder="Account No">
+        <input type="number" id="bankAmt" placeholder="Amount">
+        <button class="login-btn" onclick="bankSend()">Send</button>
+        <button class="login-btn" onclick="hideModal('modalBank')" style="background:#ccc;color:#333;">Cancel</button>
+        <div id="bankError" class="error"></div>
+      </div>
+    </div>
+    <div id="modalRecharge" class="modal-panel" style="display:none;">
+      <div class="modal-content">
+        <h3>Mobile Recharge</h3>
+        <input type="text" id="rechargeNum" placeholder="Mobile Number">
+        <input type="number" id="rechargeAmt" placeholder="Amount">
+        <button class="login-btn" onclick="rechargeSend()">Send</button>
+        <button class="login-btn" onclick="hideModal('modalRecharge')" style="background:#ccc;color:#333;">Cancel</button>
+        <div id="rechargeError" class="error"></div>
+      </div>
+    </div>
   </div>
-
-  <!-- Admin Panel -->
+  <!-- Admin Dashboard -->
   <div id="adminPanel" style="display:none;">
     <nav class="navbar">
-      <span class="navbar-title">Admin Panel</span>
-      <button class="logout-btn-small" onclick="adminLogout()">Logout</button>
+      <span class="navbar-title">bank-A Panel</span>
+      <button class="logout-btn" onclick="adminLogout()">Logout</button>
     </nav>
-    <div class="admin-tabs">
-      <button class="tab-btn active" onclick="showAdminTab('users')">User Management</button>
-      <button class="tab-btn" onclick="showAdminTab('withdrawals')">Withdrawals</button>
-      <button class="tab-btn" onclick="showAdminTab('logins')">Login History</button>
-    </div>
-    <div id="adminTabUsers" class="tab-content">
-      <h4>All Users</h4>
+    <div class="admin-section">
+      <h4>কাস্টমার তালিকা</h4>
       <div id="adminUserList"></div>
-    </div>
-    <div id="adminTabWithdrawals" class="tab-content" style="display:none;">
-      <h4>Pending Withdrawals</h4>
-      <div id="adminWithdrawalsList"></div>
-    </div>
-    <div id="adminTabLogins" class="tab-content" style="display:none;">
-      <h4>Login History</h4>
-      <div id="adminLoginsList"></div>
+      <h4>Balance Control</h4>
+      <div class="balance-control-box">
+        <input id="balanceUser" type="text" placeholder="User Mobile">
+        <input id="balanceAmt" type="number" placeholder="Amount">
+        <button class="login-btn" onclick="addBalance()">Add</button>
+        <button class="login-btn" onclick="subtractBalance()">Subtract</button>
+        <div id="balanceError" class="error"></div>
+      </div>
     </div>
   </div>
   <script src="app.js"></script>
